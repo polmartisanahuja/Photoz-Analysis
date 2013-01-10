@@ -12,9 +12,9 @@ def dict(cat_col):
 	
 	cat = {}
 	cat['z_phot'] = cat_col[zp_col]
-	cat['z_phot_min'] = cat_col[zp_min_col]
-	cat['z_phot_max'] = cat_col[zp_max_col]
-	cat['err_z_phot'] = (cat['z_phot_max'] - cat['z_phot_min']) / 2
+	#cat['z_phot_min'] = cat_col[zp_min_col]
+	#cat['z_phot_max'] = cat_col[zp_max_col]
+	#cat['err_z_phot'] = (cat['z_phot_max'] - cat['z_phot_min']) / 2
 	cat['z_true'] = cat_col[zt_col]
 	cat['odds'] = cat_col[odds_col]
 	
@@ -45,7 +45,6 @@ def set_binning(cat, z_min = z_min, z_max = z_max):
 
 	bin_size = (z_max - z_min) / n_bins
 	binning = np.arange(z_min, z_max + bin_size / 2., bin_size)
-	
 	return binning
 
 def z_cut(cat, x_cut):
@@ -278,6 +277,7 @@ def biasvsz(z, delta_z, binning):
 			mean = np.append(mean, nan)
 			errmean = np.append(errmean, nan)
 			
+	print "median=", median 
 	return median, errmed, mean, errmean
 	
 def sigmavsz(z, delta_z, binning):
@@ -299,12 +299,16 @@ def sigmavsz(z, delta_z, binning):
 			errsig68 = np.append(errsig68, errsigma68(l))
 			std = np.append(std, l.std())
 			errstd = np.append(errstd, stderr(l))
+			
 		else:
 			sigma68 = np.append(sigma68, nan)
 			errsig68 = np.append(errsig68, nan)
 			std = np.append(std, nan)
 			errstd = np.append(errstd, nan)
 
+
+	#print "sig68=", sigma68
+	#print "std=", std
 	return sigma68, errsig68, std, errstd
 	
 def outliersvsz(z, delta_z, binning, sig):
@@ -339,6 +343,7 @@ def outliersvsz(z, delta_z, binning, sig):
 			out_frac68_high = np.append(out_frac68_high, nan)
 			out_frac_high = np.append(out_frac_high, nan)
 			
+	print "out_frac68=", out_frac68
 	return out_frac68, out_frac68_low, out_frac68_high, out_frac, out_frac_high, out_frac_low
 	
 def migration_matrix(z_phot, z_true, binning):

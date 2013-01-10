@@ -34,7 +34,8 @@ def plot_zvsz(z_phot, z_true, binning, z_min, z_max):
 	#plt.colorbar(aspect = 30, orientation = 'horitzontal', fraction = 0.03).set_label("Probability")
 	plt.colorbar(aspect = 30, fraction = 0.03).set_label("Probability")
 	
-	plt.savefig(plot_folder + "zvsz.png")
+	plt.savefig(plot_folder + "zvsz.png", bbox_inches='tight')
+	#plt.savefig(plot_folder + "zvsz.pdf", bbox_inches='tight')
 	plt.close()
 				
 def plot_dzvsz(z_phot, z_true, z_min, z_max, Dz_range):
@@ -91,7 +92,6 @@ def plot_dzvsodds(cat_before, cat, binning, Dz_range, z_min, z_max, qual_para, o
 	plt.ylim(ymin = -Dz_range, ymax = Dz_range)
 	plt.xlabel(qual_para)
 	plt.ylabel(delta_z_str)
-	plt.legend(loc = 'best')
 	
 	z_bin = tool.c_binning(binning)
 	n_true, N_true = tool.hist_oddscut(cat_before['z_true'], cat['z_true'], binning)
@@ -140,14 +140,14 @@ def plot_dzvsodds(cat_before, cat, binning, Dz_range, z_min, z_max, qual_para, o
 	plt.ylim(ymin = 0, ymax = 1.)
 	plt.legend(loc = 'best')
 
-	plt.savefig(plot_folder + "odds_cut.png")
+	plt.savefig(plot_folder + "odds_cut.png", bbox_inches='tight')
 	plt.close()
 
 def plot_dzvserrz(cat_before, cat, binning, Dz_range, z_min, z_max):
 	
 	if(delta_z_str == "$\Delta z$"): delta_z = cat_before['z_phot'] - cat_before['z_true']
 	if(delta_z_str == "$\Delta z/(1+z)$"): delta_z = (cat_before['z_phot'] - cat_before['z_true']) / (1 + cat_before['z_true'])
-	
+
 	errz_bin = tool.c_binning(errz_binning)
 	s_y, err_s_y = tool.sigmavserrz(cat_before['err_z_phot'], delta_z)
 	
@@ -229,14 +229,18 @@ def plot_syvsz(z_phot, z_true, binning, s ,s_label, sp_label, x_label , y_ref, s
 	#sp: estimator percentage (median, sigma68, ...)
 	#s: estimator (mean, sigma, ...)
 	
-	if(s == "bias"): sp_y, err_sp_y, s_y , err_s_y = tool.biasvsz(z, delta_z, binning)
+	if(s == "bias"): 
+		sp_y, err_sp_y, s_y , err_s_y = tool.biasvsz(z, delta_z, binning)
+		np.savetxt('/Users/pmarti/Desktop/' + s + '_' + x_label + '.txt', np.array([z_bin, sp_y, err_sp_y]).T, fmt = '%5.5f')
 	if(s == "sigma"): 
 		sp_y, err_sp_y, s_y , err_s_y = tool.sigmavsz(z, delta_z, binning)
 		plt.ylim(ymax = yrange_sigma * sigma_ref)
+		np.savetxt('/Users/pmarti/Desktop/' + s + '_' + x_label + '.txt', np.array([z_bin, sp_y, err_sp_y]).T, fmt = '%5.5f')
 	if(s == str(sig) + "$\sigma$ outliers fraction"): 
 		sp_y, err_sp_y_low, err_sp_y_high, s_y , err_s_y_low, err_s_y_high  = tool.outliersvsz(z, delta_z, binning, sig)
 		err_sp_y = [err_sp_y_low, err_sp_y_high]
 		err_s_y = [err_s_y_low, err_s_y_high]
+		np.savetxt('/Users/pmarti/Desktop/' + s + '_' + x_label + '.txt', np.array([z_bin, s_y, err_s_y_low, err_s_y_high]).T, fmt = '%5.5f')
 		if(sig == 2): plt.ylim(ymax = yrange_out2)
 		if(sig == 3): plt.ylim(ymax = yrange_out3)
 		
@@ -244,6 +248,7 @@ def plot_syvsz(z_phot, z_true, binning, s ,s_label, sp_label, x_label , y_ref, s
 	plt.errorbar(z_bin, sp_y, err_sp_y, color = 'blue', label = sp_label)
 	plt.axhline( y = y_ref, linewidth = 1, color = 'red')
 	if(s != "bias"): plt.ylim(ymin = 0)
+	#plt.ylim(ymax = 0.25)
 	plt.xlim(xmin = z_min, xmax = z_max)
 	plt.xlabel(x_label)
 	plt.ylabel(s + " " + delta_z_str)
@@ -264,6 +269,7 @@ def plot_biasvsz(z_phot, z_true, binning, Dz_range):
 	plt.ylim(ymin = -Dz_range, ymax = Dz_range)
 		
 	plt.savefig(plot_folder + "biasvsz.png")
+	#plt.savefig(plot_folder + "biasvsz.pdf")
 	plt.close()
 	
 def plot_sigmavsz(z_phot, z_true, binning):
@@ -295,6 +301,7 @@ def plot_outliersvsz(z_phot, z_true, binning, sig, y_ref):
 	plt.axis(v)
 	
 	plt.savefig(plot_folder + str(sig) + "sig_outliersvsz.png")
+	#plt.savefig(plot_folder + str(sig) + "sig_outliersvsz.pdf")
 	plt.close()
 	
 def plot_histo_nvsz(z_phot, z_true, binning):

@@ -3,27 +3,25 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import os as os
-from pdf_parameters import *
+#from pdf_parameters import *
 
 #Parameters..........................................
 #n_pdf = 30
-#width = 0.01
-#z_resol = 0.005 #Must me set according to the probs file returned in BPZ
-#z_min = 0.2
-#z_max = 0.9
+width = 0.1
+z_resol = 0.001 #Must me set according to the probs file returned in BPZ
+z_min = 0.01
+z_max = 6.0 
 #odds_cut = 0.65
-#folder = tesi + "/photoz/2slaq_DR7_LRG_webcat/BPZ/"
-#probs_file = "2slaq_LRG_webcat_hdr.probs"
-#probs_file = "2slaq_LRG_webcat_hdr_noprior.probs"
-#photoz_file = "2slaq_LRG_webcat_hdr.bpz"
-#photoz_file = "2slaq_LRG_webcat_hdr_noprior.bpz"
+folder = "/Users/pmarti/Dropbox/Tesi/photoz/mock.r260.n1e6.s10.121027_42NB.100A/BPZ/bright/"
+probs_file = "mock.r260.n1e6.s10.121027_42NB.100A_noisy_i22.5_6CE_NEW_interp9_defaultprior.probs"
+photoz_file = "mock.r260.n1e6.s10.121027_42NB.100A_noisy_i22.5_6CE_NEW_interp9_defaultprior.bpz"
 
 #BPZ..................................................
-#code = 'bpz'
-#id_index = 0
-#z_bpz_index = 1
-#z_true_index = 10
-#odds_index = 5
+code = 'bpz'
+id_index = 0
+z_bpz_index = 1
+z_true_index = 9 
+odds_index = 5
 
 #LePhare..............................................
 #code = 'lephare'
@@ -44,7 +42,8 @@ def plot_pdf():
 		plt.xlabel('z')
 		plt.ylabel('P(z)')
 
-		plt.savefig(folder + '/pz/pz_' + str(n) + '.png')
+		np.savetxt(folder + 'pz/pz_' + str(n) + '.txt', np.array([z, pz[n]]).T, fmt = '%.5f')
+		plt.savefig(folder + 'pz/pz_' + str(n) + '.png')
 		plt.close()
 
 def z_hist(z):
@@ -59,14 +58,15 @@ def plot_z_hist():
 	print "\tWidth of bins = %3.3f" % width
 
 	hist = z_hist(z_true)
-	plt.fill(c_edges, hist, label = 'z_true')
+	plt.fill_between(c_edges, hist, 0, label = 'z_true')
 	hist = z_hist(z_phot)
 	plt.plot(c_edges, hist, '-', color = 'r', linewidth=2.0, label = 'z_phot')
 	hist = nz_pdf()
+	np.savetxt(folder + "Nz.txt",np.array([c_edges, hist]).T, fmt = '%.5f')
 	plt.plot(c_edges, hist, '-', color = 'g', linewidth=2.0, label = 'z_pdf')
 	plt.legend()
 	#plt.xlim(xmin = 0.2, xmax = 0.9)
-	plt.ylim(ymax = 700)
+	#plt.ylim(ymax = 700)
 	plt.xlabel('z')
 	plt.ylabel('Counts')
 	#plt.savefig(folder + '/pz/z_hist.png')
@@ -128,34 +128,35 @@ print "c_edges,len(c_edges)=",c_edges,len(c_edges)
 
 if(code == 'bpz'): 
 	pz = np.delete(probs, 0, 1)
-	z = np.arange(0.0100,6.5010,z_resol)
+	#z = np.arange(0.01,2.01,z_resol)
+	z = np.arange(0.01,6.505,z_resol)
 
 if(code == 'lephare'): 
 	pz = probs
 	z = np.loadtxt(zph_file)
 
 #Erase defectuos galaxies with nan pz
-rm_x_pos = []
-for i in range(len(pz)):
-	if(math.isnan(pz[i].sum())): rm_x_pos.append(i)
-pz = np.delete(pz, rm_x_pos, 0)
-z_phot = np.delete(z_phot, rm_x_pos, 0)
-z_true = np.delete(z_true, rm_x_pos, 0)
-odds = np.delete(odds, rm_x_pos, 0)
+#rm_x_pos = []
+#for i in range(len(pz)):
+#	if(math.isnan(pz[i].sum())): rm_x_pos.append(i)
+#pz = np.delete(pz, rm_x_pos, 0)
+#z_phot = np.delete(z_phot, rm_x_pos, 0)
+#z_true = np.delete(z_true, rm_x_pos, 0)
+#odds = np.delete(odds, rm_x_pos, 0)
 
 #Erase galaxies with low odds value 
-rm_x_pos = []
-for i in range(len(z_true)):
-	if(odds[i] < odds_cut): rm_x_pos.append(i)
-pz = np.delete(pz, rm_x_pos, 0)
-z_phot = np.delete(z_phot, rm_x_pos, 0)
-z_true = np.delete(z_true, rm_x_pos, 0)
-odds = np.delete(odds, rm_x_pos, 0)
+#rm_x_pos = []
+#for i in range(len(z_true)):
+#	if(odds[i] < odds_cut): rm_x_pos.append(i)
+#pz = np.delete(pz, rm_x_pos, 0)
+#z_phot = np.delete(z_phot, rm_x_pos, 0)
+#z_true = np.delete(z_true, rm_x_pos, 0)
+#odds = np.delete(odds, rm_x_pos, 0)
 
 n_width = int(width / z_resol)
 n_bins = len(c_edges)
 n_gal = len(pz)
-
+print "\tn_gal =", n_gal
 print "\tpdf resolution = %3.3f" % z_resol
 
 #Call functions

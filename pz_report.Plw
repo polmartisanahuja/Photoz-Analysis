@@ -38,14 +38,18 @@ cat_col, n, N = pt.z_cut(cat_col, z_cut)
 print "\\textbf{Num. gal. after $z(photo)< %2.2f$ cut:} %d %1.1f\%%\n" % (z_cut, n , 100 * float(n)/float(N) )
 
 #Seeting dictionary after quality cut......................
-cat_before = pt.dict(cat_col)
+#cat_before = pt.dict(cat_col)
+cat_before = pt.dict_annz(cat_col)
 
 #Quality cut...............................................
-cat_col, n, N = pt.odds_cut(cat_col, odds_cut)
-print "\\textbf{Num. gal. after $%s> %2.2f$ cut:} %d %1.1f\%%\n" % (qual_para, odds_cut, n , 100 * float(n)/float(N) )
+#cat_col, n, N = pt.odds_cut(cat_col, odds_cut)
+cat_col, n, N = pt.errz_cut(cat_col, errz_cut)
+#print "\\textbf{Num. gal. after $%s> %2.2f$ cut:} %d %1.1f\%%\n" % (qual_para, odds_cut, n , 100 * float(n)/float(N) )
+print "\\textbf{Num. gal. after $%s> %2.2f$ cut:} %d %1.1f\%%\n" % (qual_para, errz_cut, n , 100 * float(n)/float(N) )
 
 #Seeting dictionary.....................................
-cat = pt.dict(cat_col)
+#cat = pt.dict(cat_col)
+cat = pt.dict_annz(cat_col)
 
 #Defining binning.......................................
 binning = pt.set_binning(cat)
@@ -63,8 +67,10 @@ zz = np.array([cat['z_phot'], cat['z_true']])
 \begin{frame}{Efficiency of the quality cut}
 \centering
 <%
-pl.plot_dzvsodds(cat_before, cat, binning, Dz_range, z_min, z_max, qual_para, od_bin)
-print "\includegraphics[scale=0.35]{" + plot_folder + "odds_cut.png}"
+#pl.plot_dzvsodds(cat_before, cat, binning, Dz_range, z_min, z_max, qual_para, od_bin)
+pl.plot_dzvserrz(cat_before, cat, binning, Dz_range, z_min, z_max)
+#print "\includegraphics[scale=0.35]{" + plot_folder + "odds_cut.png}"
+print "\includegraphics[scale=0.35]{" + plot_folder + "errz_cut.png}"
 %>
 \end{frame}
 

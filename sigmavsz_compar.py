@@ -60,7 +60,7 @@ for i in range(len(sig68)): plt.errorbar(z_bin, sig68[i], err_sig68[i], label = 
 plt.rcParams['legend.fontsize'] = 'small'
 plt.axhline( y = sigma_ref, linewidth = 1, color = 'red')
 plt.xlim(xmin = z_min, xmax = z_max)
-plt.ylim(ymin = 0.0, ymax = 0.35)
+#plt.ylim(ymin = 0.0, ymax = 0.35)
 plt.xlabel("z(true)")
 plt.ylabel("$\sigma_{68}$")
 plt.legend(loc = 'best')
