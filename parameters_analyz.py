@@ -31,10 +31,10 @@ val_req = {'scatter':0., 'histogram': 0,'completeness': 0, 'bias': 0., 'sigma': 
 
 title = 'Photo-z performance for the PAU Bright Sample $i_{AB}<22.5$'
 
-#col_list = {'magnitude':10, 'redshift':1, 'type':4}
-col_list = {'redshift':1}
-zt_col = 0
-od_col = 2      #Odds or error column: in the case of error column set error to True in the line below, otherwise set it to False.
+col_list = {'magnitude':10, 'redshift':1, 'type':4}
+#col_list = {'redshift':1}
+zt_col = 9
+od_col = 5      #Odds or error column: in the case of error column set error to True in the line below, otherwise set it to False.
 error = 'False'
 
 #col = [10,1,4,9,5] #m, z, t, zt, od

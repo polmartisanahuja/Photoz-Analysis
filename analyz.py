@@ -22,7 +22,6 @@ else: plt.suptitle("\n".join(textwrap.wrap('Photo-z results for the "' + file_na
 plt.subplots_adjust(hspace=0,wspace=0) 
 
 cat_all = {}
-#cat_all['magnitude'],cat_all['redshift'],cat_all['type'],zt_all,od_all = np.loadtxt(file_path, usecols = col, unpack = True)
 for i in col_list: cat_all[i], _ = np.loadtxt(file_path, usecols = (col_list[i],0), unpack = True)
 
 
