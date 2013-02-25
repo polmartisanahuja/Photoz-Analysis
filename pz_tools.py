@@ -55,6 +55,7 @@ def estim(a_split, a_split_all, estimator):
 def Median(x):
 	
 	if(len(x)>10):
+		x = np.copy(x)
 		x.sort()
 		i = int(len(x)*0.5) #Index of the high limit
 		return x[i]
@@ -78,7 +79,8 @@ def Sigma68(x):
 	around the median, with equal areas in both sides. x[] is the array 
 	containing the data dat defines the distribution
 	"""
-	if(len(x) > 30): 
+	if(len(x) > 30):
+		x = np.copy(x)
 		x.sort()
 		i_high = int(len(x) * (0.5 + 0.68 / 2.0)) #Index of the high limit
 		i_low = int(len(x) * (0.5 - 0.68 / 2.0)) #Index of the low limit
@@ -147,3 +149,5 @@ def out_fract(x, sig, num):
 		if abs(x[i]) > num*sig: n += 1
 	
 	return Completeness(0, n, N)
+
+def err2od(err): return - np.log(err)

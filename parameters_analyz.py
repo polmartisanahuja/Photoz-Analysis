@@ -30,6 +30,13 @@ val_max = {'scatter':0.4, 'histogram':20000,'completeness':100, 'bias': 0.0025, 
 val_req = {'scatter':0., 'histogram': 0,'completeness': 0, 'bias': 0., 'sigma': 0.35, 'outliers': 3}
 
 title = 'Photo-z performance for the PAU Bright Sample $i_{AB}<22.5$'
-val_list = ['magnitude', 'redshift', 'type']
-col = [10,1,4,9,5] #m, z, t, zt, od
-od_cut = [0.,0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+
+#col_list = {'magnitude':10, 'redshift':1, 'type':4}
+col_list = {'redshift':1}
+zt_col = 0
+od_col = 2      #Odds or error column: in the case of error column set error to True in the line below, otherwise set it to False.
+error = 'False'
+
+#col = [10,1,4,9,5] #m, z, t, zt, od
+                   #od_cut = [0.,0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+od_cut = [0.0,0.2,0.4,0.6,0.8]
