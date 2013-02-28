@@ -25,6 +25,13 @@ print "z min=", cat_all['redshift'].min()
 print "\nt max=", cat_all['type'].max()
 print "t min=", cat_all['type'].min()
 
+#Renormalizing odds.............................
+od_min = od_all[np.isnan(od_all) == False].min()
+od_max = od_all[np.isnan(od_all) == False].max()
+print "od_min=", od_min 
+print "od_max=", od_max 
+od_all = (od_all - od_min) / (od_max - od_min) 
+
 n_od = len(od_cut)
 mycolors = tools.spectral(n_od, 0.2, 1.0)
 i_od = 0

@@ -1,0 +1,206 @@
+\documentclass[8pt]{beamer}
+\usepackage[latin1]{inputenc}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage[strings]{underscore}
+\usetheme{Warsaw}
+\usepackage{verbatim}
+
+<%
+import pz_analisis_plots as pl
+import pz_analisis_tools as pt
+import numpy as np
+import os as os
+from parameters import *
+%>
+
+<%
+print "\\title[" + survey_name + "]{" + code + " analisis for the " + survey_name + " survey}"
+print "\\author{" + author + "}"
+%>
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}[fragile]{Introduction}
+<%
+#Reading catalog........................................
+cat_col = np.loadtxt(cat_file, unpack = True)
+#if (qual_para == 'PDZbest'): cat_col[odds_col] = cat_col[odds_col] / 100. 
+print "\\textbf{Filename of the cat:}  \\texttt{%s}\n\\medskip \n" % cat_file
+print "\\textbf{Num. gal. in cat:} %d\n" % len(cat_col[0])
+
+#pz cut..............................................
+cat_col, n, N = pt.z_cut(cat_col, z_cut)
+print "\\textbf{Num. gal. after $z(photo)< %2.2f$ cut:} %d %1.1f\%%\n" % (z_cut, n , 100 * float(n)/float(N) )
+
+#Seeting dictionary after quality cut......................
+#cat_before = pt.dict(cat_col)
+cat_before = pt.dict_annz(cat_col)
+
+#Quality cut...............................................
+#cat_col, n, N = pt.odds_cut(cat_col, odds_cut)
+cat_col, n, N = pt.errz_cut(cat_col, errz_cut)
+#print "\\textbf{Num. gal. after $%s> %2.2f$ cut:} %d %1.1f\%%\n" % (qual_para, odds_cut, n , 100 * float(n)/float(N) )
+print "\\textbf{Num. gal. after $%s> %2.2f$ cut:} %d %1.1f\%%\n" % (qual_para, errz_cut, n , 100 * float(n)/float(N) )
+
+#Seeting dictionary.....................................
+#cat = pt.dict(cat_col)
+cat = pt.dict_annz(cat_col)
+
+#Defining binning.......................................
+binning = pt.set_binning(cat)
+print "\\medskip \n \\textbf{z-binning edges:} " + str(binning)
+
+import os as os
+os.system("mkdir plots")
+
+zz = np.array([cat['z_phot'], cat['z_true']])
+#np.savetxt("zpvszs.txt", zz.T, fmt = '%f' )
+
+%>
+\end{frame}
+
+\begin{frame}{Efficiency of the quality cut}
+\centering
+<%
+#pl.plot_dzvsodds(cat_before, cat, binning, Dz_range, z_min, z_max, qual_para, od_bin)
+pl.plot_dzvserrz(cat_before, cat, binning, Dz_range, z_min, z_max)
+#print "\includegraphics[scale=0.35]{" + plot_folder + "odds_cut.png}"
+print "\includegraphics[scale=0.35]{" + plot_folder + "errz_cut.png}"
+%>
+\end{frame}
+
+\begin{frame}{Transition matrix z(true) $\rightarrow$ z(phot) }
+\centering
+<%
+print "After $z(phot)<" + str(z_cut) + "$ and $" + qual_para + ">" + str(odds_cut) + "$ cuts"
+%>
+<%
+pl.plot_zvsz(cat['z_phot'], cat['z_true'], binning, z_min, z_max)
+pl.plot_dzvsz(cat['z_phot'], cat['z_true'], z_min, z_max, Dz_range)
+print "\includegraphics[scale=0.35]{" + plot_folder + "zvsz.png}"
+%>
+\end{frame}
+
+\begin{frame}{Nz}
+\centering
+<%
+print "After $z(phot)<" + str(z_cut) + "$ and $" + qual_para + ">" + str(odds_cut) + "$ cuts"
+%>
+<%
+pl.plot_histo_nvsz(cat['z_phot'], cat['z_true'], binning)
+print "\includegraphics[scale=0.45]{" + plot_folder + "Nz.png}"
+%>
+\end{frame}
+
+\begin{frame}{Bias}
+\centering
+<%
+print "After $z(phot)<" + str(z_cut) + "$ and $" + qual_para + ">" + str(odds_cut) + "$ cuts"
+%>
+\begin{center}
+\begin{tabular}{cc}
+<%
+pl.plot_biasvsz(cat['z_phot'], cat['z_true'], binning, Dz_range)
+print "\includegraphics[scale=0.25]{" + plot_folder + "dzvsz.png} & \includegraphics[scale=0.25]{"  + plot_folder + "biasvsz.png}"
+%>
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{Photo-z precision}
+\centering
+<%
+print "After $z(phot)<" + str(z_cut) + "$ and $" + qual_para + ">" + str(odds_cut) + "$ cuts"
+%>
+\begin{center}
+\begin{tabular}{cc}
+<%
+pl.plot_sigmavsz(cat['z_phot'], cat['z_true'], binning) 
+print "\includegraphics[scale=0.25]{" + plot_folder + "dzvsz.png} & \includegraphics[scale=0.25]{"  + plot_folder + "sigmavsz.png}"
+%>
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{2$\sigma$ outliers fraction}
+\centering
+<%
+print "After $z(phot)<" + str(z_cut) + "$ and $" + qual_para + ">" + str(odds_cut) + "$ cuts"
+%>
+\begin{center}
+\begin{tabular}{cc}
+<% 
+pl.plot_outliersvsz(cat['z_phot'], cat['z_true'], binning, 2, outliers2_ref)
+print "\includegraphics[scale=0.25]{" + plot_folder + "dzvsz.png} & \includegraphics[scale=0.25]{"  + plot_folder + "2sig_outliersvsz.png}"
+%>
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{3$\sigma$ outliers fraction}
+\centering
+<%
+print "After $z(phot)<" + str(z_cut) + "$ and $" + qual_para + ">" + str(odds_cut) + "$ cuts"
+%>
+\begin{center}
+\begin{tabular}{cc}
+<%
+pl.plot_outliersvsz(cat['z_phot'], cat['z_true'], binning, 3, outliers3_ref) 
+print "\includegraphics[scale=0.25]{" + plot_folder + "dzvsz.png} & \includegraphics[scale=0.25]{"  + plot_folder + "3sig_outliersvsz.png}"
+%>
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{Normalized $\Delta z$ distribution}
+\centering
+<%
+print "After $z(phot)<" + str(z_cut) + "$ and $" + qual_para + ">" + str(odds_cut) + "$ cuts"
+%>
+<%
+pl.plot_histo_dzvsz(cat['z_phot'], cat['err_z_phot'], cat['z_true'])
+print "\includegraphics[scale=0.35]{" + plot_folder + "histo_dzvsz.png}"
+%>
+\end{frame}
+
+\begin{comment}
+\begin{frame}{4 Photo-z Bins study}
+\centering
+<%
+#print "After $z(phot)<" + str(z_cut) + "$ and $" + qual_para + ">" + str(odds_cut) + "$ cuts"
+%>
+<%
+#os.system("root -b -q $HOME/routines/4z_histos.C")
+#print "\includegraphics[scale=0.3]{" + plot_folder + "4z_histos.png}"
+#fit = np.loadtxt("./plots/4z_histos.txt", unpack = True)
+%>
+\begin{table}[!h]
+\centering
+\begin{tabular}{|c||c|c|c|c|}
+\hline
+  & Bin 1 & Bin 2 & Bin 3 & Bin 4 \\
+\hline
+<%
+"""field = ["$N_{max}$", "$\mu$", "$\sigma$", "$\chi^{2}/ndf$"]
+for i in range(0,8,2):
+	print "%s" % field[int(i/2)]
+	for j in range(4): 
+		if(i == 0): print " & %d$\\pm$%d" % (fit[i][j],fit[i+1][j])
+		elif(i == 6): print " & %0.0f$/$%0.0f" % (fit[i][j],fit[i+1][j])
+		else: print " & %4.4f$\\pm$%4.4f" % (fit[i][j],fit[i+1][j])
+		
+	print "\\\\ \\hline"
+"""
+%>
+\end{tabular}
+\end{table}
+
+\end{frame}
+\end{comment}
+
+\end{document}
