@@ -1,5 +1,7 @@
 *.py[co]
 other/
+.gitignore
+.git/
 
 # Packages
 *.egg
