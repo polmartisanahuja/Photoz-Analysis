@@ -1,7 +1,6 @@
 import numpy as np
 import math
 import scipy
-import scipy.stats
 
 def binsplit(a, x, x_binning):
 
@@ -80,28 +79,40 @@ def Sigma68(x):
 	around the median, with equal areas in both sides. x[] is the array 
 	containing the data dat defines the distribution
 	"""
-	#if(len(x) > 30):
-	x = np.copy(x)
-	x.sort()
-	i_high = int(len(x) * (0.5 + 0.68 / 2.0)) #Index of the high limit
-	i_low = int(len(x) * (0.5 - 0.68 / 2.0)) #Index of the low limit
-	return (x[i_high] - x[i_low]) / 2
-	#else: return np.nan
+	if(len(x) > 30):
+		x = np.copy(x)
+		x.sort()
+		i_high = int(len(x) * (0.5 + 0.68 / 2.0)) #Index of the high limit
+		i_low = int(len(x) * (0.5 - 0.68 / 2.0)) #Index of the low limit
+		return (x[i_high] - x[i_low]) / 2
+	else: return np.nan
 	
 def errsigma68(x):
 	"""This function computes the error of the sigma68
 	 using a bootstrap method. It uses 1000 values to generate 
 	 the distribution of sigma_z and then compute the rms of it """
 	 
-	#if(len(x) > 30): 
-	y = []
-	for i in range(1000):
-		xr = resample(x)
-		y.append(Sigma68(xr))
-	y = np.array(y)
-	return np.std(y)
-	#else: return np.nan
+	if(len(x) > 30): 
+		y = []
+		for i in range(1000):
+			xr = resample(x)
+			y.append(Sigma68(xr))
+		y = np.array(y)
+		return np.std(y)
+	else: return np.nan
+	
+def stderr(x):
+	""" This function computes the error of the standar 
+	deviation of x from the statistical (Variance of variance)"""
+	
+	m2 = scipy.stats.moment(x,2)
+	m4 = scipy.stats.moment(x,4)
+	N = len(x)
 
+	factor = ((float(N) - 3) / (float(N) - 1))
+	err = (1.0 / 2.0) * (1.0 / math.sqrt(N)) * (1.0 / math.sqrt(m2)) * math.sqrt(m4 - factor * m2 * m2)
+	return err
+	
 def resample(x):
 	"""This function takes the array x and then picks up N = dim(x)
 	values of x and generates a new array y with these values (also sorted) """
@@ -116,7 +127,7 @@ def resample(x):
 def lf(x): return math.log(math.factorial(x))
 
 def Completeness(x_min, n, N):
-	dx = 0.0001
+	dx = 0.000001
 	x = np.arange(x_min+dx ,1-dx,dx)
 	f = np.exp( lf(N) - lf(n) - lf(N-n) + n * np.log(x) + (N - n) * np.log(1-x) )
 	f = f/f.sum()
@@ -132,35 +143,11 @@ def Completeness(x_min, n, N):
 	
 def out_fract(x, sig, num):
 	
-	#if(len(x) > 3):
 	n = 0
 	N = len(x)
-	#for i in range(N): 
-	#	if abs(x[i]) > num*sig: n += 1
-	mask = (np.abs(x) > num*sig)
-	n = len(x[mask])
+	for i in range(N): 
+		if abs(x[i]) > num*sig: n += 1
 	
 	return Completeness(0, n, N)
 
 def err2od(err): return - np.log(err)
-
-def average(x): return sum(x) * 1.0 / len (x)
-
-def rms(x):
-	
-	avg = average(x)
-	variance = map(lambda x: (x - avg)**2, x)
-	sigma = math.sqrt(average(variance))
-	return sigma
-	
-def rmserr(x):
-	""" This function computes the error of the standar 
-	deviation of x from the statistical (Variance of variance)"""
-	
-	m2 = scipy.stats.moment(x,2)
-	m4 = scipy.stats.moment(x,4)
-	N = len(x)
-
-	factor = ((float(N) - 3) / (float(N) - 1))
-	err = (1.0 / 2.0) * (1.0 / math.sqrt(N)) * (1.0 / math.sqrt(m2)) * math.sqrt(m4 - factor * m2 * m2)
-	return err

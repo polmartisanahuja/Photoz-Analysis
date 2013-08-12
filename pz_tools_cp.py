@@ -12,45 +12,53 @@ def binsplit(a, x, x_binning):
 		a_split += [a[mask]]
 	return a_split 
 
-def estim(a_split, a_split_all, estimator):
+def estim(a_split, estimator):
 	
 	n_bin = len(a_split)
 	val = np.zeros(n_bin) 	
-	
-	if(estimator == 'histogram'):
-		err_val = np.zeros(n_bin) 	
-		for i in range(n_bin): 
-			val[i] = len(a_split[i])
-			err_val[i] = math.sqrt(val[i])
-		
-	if(estimator == 'completeness'):
-		err_val = np.zeros((2, n_bin))
-		for i in range(n_bin): 
-			val[i], err_val[0][i], err_val[1][i] =  Completeness(0,len(a_split[i]), len(a_split_all[i]))
-		val *= 100	
-		err_val *= 100	
 
-	if(estimator == 'bias'): 
+	if(estimator == 'histogram'):
+		err_val = np.zeros(n_bin)
+		for i in range(n_bin):
+			val[i] = len(a_split[i])
+			#err_val[i] = math.sqrt(val[i])
+		val = val / val.sum() 
+
+	if(estimator == 'median'): 
 		err_val = np.zeros(n_bin) 	
 		for i in range(n_bin): 
 			val[i] = Median(a_split[i])
 			err_val[i] = errmedian(a_split[i])
 
-	if(estimator == 'sigma'):
+	if(estimator == 'sigma68'):
 		err_val = np.zeros(n_bin) 	
 		for i in range(n_bin): 
 			val[i] = Sigma68(a_split[i])
 			err_val[i] = errsigma68(a_split[i])
-		val *= 100	
-		err_val *= 100	
+		#val *= 100	
+		#err_val *= 100	
 
-	if(estimator == 'outliers'):
+	if(estimator == 'of3_sig68'):
 		err_val = np.zeros((2, n_bin))
 		for i in range(n_bin): 
 			val[i], err_val[0][i], err_val[1][i] = out_fract(a_split[i], Sigma68(a_split[i]), 3)
 		val *= 100	
 		err_val *= 100	
-		
+
+	if(estimator == 'of3_rms'):
+		err_val = np.zeros((2, n_bin))
+		for i in range(n_bin): 
+			val[i], err_val[0][i], err_val[1][i] = out_fract(a_split[i], rms(a_split[i]), 3)
+		val *= 100	
+		err_val *= 100	
+
+	if(estimator == 'of2_rms'):
+		err_val = np.zeros((2, n_bin))
+		for i in range(n_bin): 
+			val[i], err_val[0][i], err_val[1][i] = out_fract(a_split[i], rms(a_split[i]), 2)
+		val *= 100	
+		err_val *= 100	
+	
 	return val, err_val
 
 def Median(x):
@@ -80,27 +88,27 @@ def Sigma68(x):
 	around the median, with equal areas in both sides. x[] is the array 
 	containing the data dat defines the distribution
 	"""
-	#if(len(x) > 30):
-	x = np.copy(x)
-	x.sort()
-	i_high = int(len(x) * (0.5 + 0.68 / 2.0)) #Index of the high limit
-	i_low = int(len(x) * (0.5 - 0.68 / 2.0)) #Index of the low limit
-	return (x[i_high] - x[i_low]) / 2
-	#else: return np.nan
+	if(len(x) > 30):
+		x = np.copy(x)
+		x.sort()
+		i_high = int(len(x) * (0.5 + 0.68 / 2.0)) #Index of the high limit
+		i_low = int(len(x) * (0.5 - 0.68 / 2.0)) #Index of the low limit
+		return (x[i_high] - x[i_low]) / 2
+	else: return np.nan
 	
 def errsigma68(x):
 	"""This function computes the error of the sigma68
 	 using a bootstrap method. It uses 1000 values to generate 
 	 the distribution of sigma_z and then compute the rms of it """
 	 
-	#if(len(x) > 30): 
-	y = []
-	for i in range(1000):
-		xr = resample(x)
-		y.append(Sigma68(xr))
-	y = np.array(y)
-	return np.std(y)
-	#else: return np.nan
+	if(len(x) > 30): 
+		y = []
+		for i in range(1000):
+			xr = resample(x)
+			y.append(Sigma68(xr))
+		y = np.array(y)
+		return np.std(y)
+	else: return np.nan
 
 def resample(x):
 	"""This function takes the array x and then picks up N = dim(x)
@@ -141,6 +149,9 @@ def out_fract(x, sig, num):
 	n = len(x[mask])
 	
 	return Completeness(0, n, N)
+	#else: 
+	#	print 'caca'
+	#	return np.nan
 
 def err2od(err): return - np.log(err)
 
@@ -148,10 +159,12 @@ def average(x): return sum(x) * 1.0 / len (x)
 
 def rms(x):
 	
-	avg = average(x)
-	variance = map(lambda x: (x - avg)**2, x)
-	sigma = math.sqrt(average(variance))
-	return sigma
+	if(len(x) > 30):
+		avg = average(x)
+		variance = map(lambda x: (x - avg)**2, x)
+		sigma = math.sqrt(average(variance))
+		return sigma
+	else: return np.nan
 	
 def rmserr(x):
 	""" This function computes the error of the standar 
