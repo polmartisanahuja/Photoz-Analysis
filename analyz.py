@@ -6,6 +6,9 @@ import tools as tls
 import matplotlib.pylab as plt
 import pz_tools as pztls
 from slaq_parameters_analyz import *
+#from pau_bright_parameters_analyz import *
+from pau_faint_parameters_analyz import *
+#from matplotlib.ticker import MaxNLocator
 import textwrap
 from matplotlib import rc
 
@@ -62,8 +65,8 @@ for o in od_cut:
 
 	cat = {}
 
-	dz_all = zp_all - zt_all
-	#dz_all = (zp_all - zt_all) / (1 + zt_all)
+	#dz_all = zp_all - zt_all
+	dz_all = (zp_all - zt_all) / (1 + zt_all)
 
 	mask = od_all > o 	
 	#mask = (zp_all >= 0) 	
@@ -73,23 +76,23 @@ for o in od_cut:
 	
 
 	#General values....................
-	sigma68_all = pztls.Sigma68(dz)
-	errsigma68_all = pztls.errsigma68(dz)
-	rms_all = pztls.rms(dz)
-	bias_all = pztls.Median(dz)
-	errbias_all = pztls.errmedian(dz)
-	comp_all, errcomp1_all, errcomp2_all = pztls.Completeness(0,len(dz),len(dz_all))
-	#out_frac_all_sigma68, errout_frac1_all_sigma68, errout_frac2_all_sigma68 = pztls.out_fract(dz, sigma68_all, 3)
-	out_frac_all_rms_2, errout_frac1_all_rms_2, errout_frac2_all_rms_2 = pztls.out_fract(dz, rms_all, 2)
-	out_frac_all_rms_3, errout_frac1_all_rms_3, errout_frac2_all_rms_3 = pztls.out_fract(dz, rms_all, 3)
+	#sigma68_all = pztls.Sigma68(dz)
+	#errsigma68_all = pztls.errsigma68(dz)
+	#rms_all = pztls.rms(dz)
+	#bias_all = pztls.Median(dz)
+	#errbias_all = pztls.errmedian(dz)
+	#comp_all, errcomp1_all, errcomp2_all = pztls.Completeness(0,len(dz),len(dz_all))
+	##out_frac_all_sigma68, errout_frac1_all_sigma68, errout_frac2_all_sigma68 = pztls.out_fract(dz, sigma68_all, 3)
+	#out_frac_all_rms_2, errout_frac1_all_rms_2, errout_frac2_all_rms_2 = pztls.out_fract(dz, rms_all, 2)
+	#out_frac_all_rms_3, errout_frac1_all_rms_3, errout_frac2_all_rms_3 = pztls.out_fract(dz, rms_all, 3)
 
 
-	print "\nResults using the entire catalog:"
-	print "Sigma68 = %.5f +/- %.5f" %(sigma68_all,errsigma68_all)
-	print "Bias = %.5f +/- %.5f" %(bias_all,errbias_all)
-	print "Completeness = %.5f +%.5f/-%.5f" %(comp_all, errcomp1_all, errcomp2_all)
-	print "2sig Outliers fraction (rms) = %.5f +%.5f/-%.5f" %(out_frac_all_rms_2, errout_frac1_all_rms_2, errout_frac2_all_rms_2)
-	print "3sig Outliers fraction (rms) = %.5f +%.5f/-%.5f\n" %(out_frac_all_rms_3, errout_frac1_all_rms_3, errout_frac2_all_rms_3)
+	#print "\nResults using the entire catalog:"
+	#print "Sigma68 = %.5f +/- %.5f" %(sigma68_all,errsigma68_all)
+	#print "Bias = %.5f +/- %.5f" %(bias_all,errbias_all)
+	#print "Completeness = %.5f +%.5f/-%.5f" %(comp_all, errcomp1_all, errcomp2_all)
+	#print "2sig Outliers fraction (rms) = %.5f +%.5f/-%.5f" %(out_frac_all_rms_2, errout_frac1_all_rms_2, errout_frac2_all_rms_2)
+	#print "3sig Outliers fraction (rms) = %.5f +%.5f/-%.5f\n" %(out_frac_all_rms_3, errout_frac1_all_rms_3, errout_frac2_all_rms_3)
 	print "Generation of plots...\n"
 
 	#Bin splitting......................
@@ -113,26 +116,32 @@ for o in od_cut:
 				val, err_val = pztls.estim(dz_bin, dz_bin_all, e)
 
 				a = plt.subplot(n_estim, n_val, i + n_val*j)
-				x = binning[l][:-1] + 0.5 * (binning[l][1] - binning[l][0])
+				#print binning[l]
+				x = binning[l][:-1] + 0.5 * (binning[l][1:] - binning[l][:-1])
 			#	plt.errorbar(x, val, err_val, color = cmap( (o - od_cut.min()) / (od_cut.max() - od_cut.min()) ))	
+				#print x
+				#print val 
 				plt.errorbar(x, val, err_val, color = cmap(tls.cmapind(o, eff_lim, id_lim)))
 				#np.savetxt('./' + e + '_vs_' + l + '.txt', np.array([x, val ,err_val]).T, fmt = '%.4f')
 			
 			if(j + 1 != n_estim): plt.setp( a.get_xticklabels(), visible=False)
 			else: 
 				plt.xlabel(col_label[l])
-				plt.xticks(xtick[l])
+				#a.xaxis.set_major_locator(MaxNLocator(prune = 'both'))
 				#plt.setp( a.get_xticklabels()[-1], visible=False)
 				#plt.setp( a.get_xticklabels()[0], visible=False)
 
 			if(i != 1): plt.setp( a.get_yticklabels(), visible=False)
 			else: 
 				plt.ylabel(estim_label[e])
-				plt.yticks(ytick[e])
+				#a.xaxis.set_major_locator(MaxNLocator(prune = 'both'))
 				#plt.setp( a.get_yticklabels()[-1], visible=False)
 				#plt.setp( a.get_yticklabels()[0], visible=False)
 
-			if(type(val_req[e]) == float): plt.axhline(y=val_req[e], color = 'black', linewidth = 1, linestyle = 'dashed')		
+			plt.xticks(xtick[l])
+			plt.yticks(ytick[e])
+
+			if(type(val_req[e]) == float): plt.axhline(y=val_req[e], color = 'black', linewidth = 0.5, linestyle = 'dashed')		
 
 			plt.xlim(xmin = binning[l][0], xmax = binning[l][-1])
 			plt.ylim(ymax = val_max[e])
@@ -149,4 +158,4 @@ while(file_name[-i] != '.'): i += 1
 
 #plt.savefig('../../Data/Plot/' + file_name[:-i] + '.pdf', dpi = 600)
 #plt.savefig('../../Data/Plot/' + file_name[:-i] + '.pdf', dpi = 600, bbox_inches="tight", bbox_extra_artists=[mytitle])
-plt.savefig('../../Data/Plot/' + file_name[:-i] + '.pdf', dpi = 600, bbox_inches="tight")
+plt.savefig('../../Data/Plot/' + file_name[:-i] + '.pdf', dpi = 150, bbox_inches="tight")
