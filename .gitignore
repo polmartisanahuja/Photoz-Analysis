@@ -2,6 +2,9 @@
 other/
 .gitignore
 .git/
+.DS_Store
+other/.DS_Store
+other/pz/.DS_Store
 
 # Packages
 *.egg
